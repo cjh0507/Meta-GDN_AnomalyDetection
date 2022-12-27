@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-import  scipy.stats
+# import  scipy.stats
 # from    torch.utils.data import DataLoader
 from    torch.optim import lr_scheduler
 import  random, sys, pickle
@@ -46,7 +46,7 @@ def main():
             # training
             maml.train()
             x_train, y_train, x_qry, y_qry = task_generator(feature_list, l_list, ul_list, bs=args.bs, device=device)
-            loss = maml(x_train, y_train, x_qry, y_qry)
+            loss = maml(x_train, y_train, x_qry, y_qry) # 여기에서 이미 maml의 parameters가 update됨
             torch.save(maml.state_dict(), 'temp.pkl')
             # validation
             model_meta_eval = Meta(args, config).to(device)

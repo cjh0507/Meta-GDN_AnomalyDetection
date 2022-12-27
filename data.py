@@ -1,5 +1,6 @@
 import scipy.io as sio
 import glob
+import random
 from utils import *
 
 def task_generator(feature, l_list, ul_list, bs, device):
@@ -24,7 +25,7 @@ def task_generator(feature, l_list, ul_list, bs, device):
         label_l.append(torch.FloatTensor(label_t).to(device))
 
         # generate query set
-        bs_qry = 2 * (len(l_list[i]) - int(bs / 2))
+        bs_qry = 2 * (len(l_list[i]) - int(bs / 2)) # ? 왜 굳이 2를 곱했다가 아래서 다시 나누는 걸까
         qry_idx = np.array(l_list[i])[perm_l[-int(bs_qry / 2):]].tolist()
         qry_idx += np.array(ul_list[i])[perm_ul[-int(bs_qry / 2):]].tolist()
         label_t_qry = np.concatenate((np.ones(int(bs_qry / 2)), np.zeros(int(bs_qry / 2))))
