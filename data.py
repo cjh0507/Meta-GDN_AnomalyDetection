@@ -2,7 +2,6 @@ import scipy.io as sio
 import glob
 from utils import *
 
-
 def task_generator(feature, l_list, ul_list, bs, device):
     feature_l = []
     label_l = []
@@ -93,7 +92,6 @@ def sp_matrix_to_torch_sparse_tensor(sparse_mx):
     shape = torch.Size(sparse_mx.shape)
     return torch.sparse.FloatTensor(indices, values, shape)
 
-
 class DataProcessor:
 
     def __init__(self, num_graph, degree, data_name):
@@ -109,10 +107,12 @@ class DataProcessor:
 
     def data_loader(self):
 
-        l = glob.glob("graphs/{}/*.mat".format(self.data_name))
+        l = glob.glob("graphs/{}/*.mat".format(self.data_name)) # data_name에 대응되는 pathname들의 List
 
-        f_l = random.sample(l, self.num_graph)
-        random.shuffle(f_l)
+        f_l = random.sample(l, self.num_graph) # 위에서 만든 pathname List에서 num_graph(사용될 그래프의 개수 = # of aux. graphs + 1(target graph))만큼 비복원 추출
+        random.shuffle(f_l) # 사실 random.sample 하면서 섞이니까 없어도 되는 부분이긴 함
+        
+        # load graphs as auxiliary graphs
         for f in f_l[:-1]:
             adj, feature, label = load_yelp(f)
             adj = normalize_adjacency(adj)
@@ -147,23 +147,23 @@ class DataProcessor:
         print("data loading finished.")
 
     def sample_anomaly(self, num_labeled_ano):
-
+        
+        # sampling anomalies from 'auxiliary' graphs
         for i in range(self.num_graph - 1):
-            # sampling anomalies from auxiliary graphs
             label_tmp = self.label_l[i]
             idx_anomaly = np.random.permutation(np.nonzero(label_tmp == 1)[0])
             idx_normal = np.random.permutation(np.nonzero(label_tmp == 0)[0])
-            self.labeled_idx_l.append(idx_anomaly[:num_labeled_ano].tolist())
-            self.unlabeled_idx_l.append(np.concatenate((idx_normal, idx_anomaly[num_labeled_ano:])).tolist())
+            self.labeled_idx_l.append(idx_anomaly[:num_labeled_ano].tolist()) # ! <- Out of range 발생 가능
+            self.unlabeled_idx_l.append(np.concatenate((idx_normal, idx_anomaly[num_labeled_ano:])).tolist()) # sample 되지 않은 anomaly는 unlabeled로 취급
 
+        # 섞기
         self.target_idx_train_ano_all = np.random.permutation(self.target_idx_train_ano_all)
         self.target_idx_train_normal_all = np.random.permutation(self.target_idx_train_normal_all)
 
-        if num_labeled_ano <= len(self.target_idx_train_ano_all):
+        # sampling anomaliles from the 'target' graph
+        if num_labeled_ano <= len(self.target_idx_train_ano_all): # 써먹기로 한 (labeled) anomaly의 수가 target graph에 들어있는 train용 (labeled) anomaly의 수보다 적거나 같으면
             self.target_labeled_idx = self.target_idx_train_ano_all[:num_labeled_ano].tolist()
             self.target_unlabeled_idx = np.concatenate((self.target_idx_train_normal_all, self.target_idx_train_ano_all[num_labeled_ano:])).tolist()
 
         return [self.feature_l, self.labeled_idx_l, self.unlabeled_idx_l], \
                [self.target_feature, self.target_labeled_idx, self.target_unlabeled_idx]
-
-

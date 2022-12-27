@@ -12,7 +12,7 @@ class Learner(nn.Module):
         self.config = config
         self.vars = nn.ParameterList()
         self.vars_bn = nn.ParameterList()
-        for i, (name, param) in enumerate(self.config):
+        for i, (name, param) in enumerate(self.config): # from modelArch() in getConfig.py
             if name is 'linear':
                 w = nn.Parameter(torch.ones(*param))
                 torch.nn.init.kaiming_normal_(w)
@@ -32,6 +32,7 @@ class Learner(nn.Module):
                 continue
             else:
                 raise NotImplementedError
+            
     def extra_repr(self):
         info = ''
         for name, param in self.config:

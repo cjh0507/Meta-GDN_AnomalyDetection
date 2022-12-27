@@ -19,9 +19,9 @@ def aucPerformance(y_true, y_pred):
 
 
 def sgc_precompute(features, adj, degree):
-    # compute S^K
+    # compute (S^K)X
     for i in range(degree):
-        features = torch.spmm(adj, features)
+        features = torch.spmm(adj, features) # (S) * (S^(K-1)X) 
     return features
 
 
