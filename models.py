@@ -13,12 +13,12 @@ class SGC(nn.Module):
     def __init__(self, in_feature, out_feature):
         super(SGC, self).__init__()
         self.fc1 = nn.Linear(in_feature, 512) # Implicit하게 Network Encoder + hidden layer of Abnormality Valuator가 표현됨
-        # ! 이 위치에 ReLU가 필요하지 않나?
+        self.bn = nn.BatchNorm1d(512) # ! 추가된 것. Batch Normalization
         self.out = nn.Linear(512, out_feature) # Output of Abnormality Valuator
 
     def forward(self, x):
         x = self.fc1(x)
-        # ! 이 위치에 ReLU가 필요하지 않나?
-        # x = F.relu(self.fc1(x), inplace=False)
+        x = self.bn(x) # ! 추가된 것
+        x = F.relu(x, inplace=False) # ! 추가된 것
         x = self.out(x)
         return x
