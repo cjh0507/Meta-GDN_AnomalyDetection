@@ -4,6 +4,7 @@ def modelArch(in_feature, out_feature):
     config = [
         ('linear', [512, in_feature]),
         # ! 이 위치에 ReLU가 필요하지 않나?
+        # ('relu', [False]),
         ('linear', [out_feature, 512])
     ]
 

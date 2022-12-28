@@ -19,5 +19,6 @@ class SGC(nn.Module):
     def forward(self, x):
         x = self.fc1(x)
         # ! 이 위치에 ReLU가 필요하지 않나?
+        # x = F.relu(self.fc1(x), inplace=False)
         x = self.out(x)
         return x
